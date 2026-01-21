@@ -105,7 +105,7 @@ chmod 755 /path/to/recordings
 **If application crashed:**
 - Recording may be partial but still usable
 - Try replaying anyway: `cd recording/run && python -m retracesoftware --recording ..`
-- If replay fails, recording is corrupted—discard and re-record
+- If replay fails, recording is corrupted; discard and re-record
 
 ---
 
