@@ -12,7 +12,7 @@ Logging captures what you predicted you'd need. Retrace captures the entire exec
 
 ### How is this different from APM tools (Datadog, New Relic)?
 
-APM tools show aggregated metrics and traces. Retrace gives you the actual execution—you can set breakpoints and step through the code that crashed in production.
+APM tools show aggregated metrics and traces. Retrace gives you the actual execution; you can set breakpoints and step through the code that crashed in production.
 
 ### How is this different from time-travel debuggers (rr, Mozilla rr)?
 
@@ -83,7 +83,7 @@ Requirements:
 - Retrace installed
 - Linux or macOS
 
-Then yes—replay doesn't need access to production databases, networks, or credentials. It's completely self-contained.
+Then yes; replay doesn't need access to production databases, networks, or credentials. It's completely self-contained.
 
 ### Does replay hit external systems?
 
@@ -104,7 +104,7 @@ See [Troubleshooting: Replay diverges](troubleshooting.md#replay-diverges) for d
 
 ### Can I replay the same recording multiple times?
 
-Yes. Recordings are immutable—replay them as many times as needed.
+Yes. Recordings are immutable; replay them as many times as needed.
 
 ---
 
@@ -214,7 +214,7 @@ Consult your compliance team before production recording. See [Security Model: C
 
 ## Troubleshooting
 
-### Recording doesn't start—why?
+### Recording doesn't start; why?
 
 Check:
 1. `RETRACE=1` is set
@@ -224,7 +224,7 @@ Check:
 
 See [Troubleshooting: Recording doesn't start](troubleshooting.md#recording-doesnt-start).
 
-### Replay fails—what do I do?
+### Replay fails; what do I do?
 
 Start here: [Troubleshooting guide](troubleshooting.md).
 
@@ -246,7 +246,7 @@ Yes:
 
 ### Can I use this for debugging?
 
-Yes—that's the primary use case. Record production bugs, replay locally, inspect state.
+Yes; that's the primary use case. Record production bugs, replay locally, inspect state.
 
 ### Can I use this for testing?
 
