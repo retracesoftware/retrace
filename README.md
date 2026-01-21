@@ -1,206 +1,142 @@
 # Retrace
 
-**Deterministic record/replay for Python services** — capture a production execution once, then replay it locally with the same code paths, inputs, and outcomes. Retrace gives you *debuggable replays* and a foundation for *execution insight + data lineage* across your application.
-
-This repository is the **umbrella “front door”** for Retrace:
-- ✅ Product overview + quickstart
-- ✅ Record/Replay CLI entrypoint
-- ✅ Docs (architecture, deployment, security model, troubleshooting)
-- ✅ Demos (gifs/screenshots, minimal replay example, sample traces)
-- ✅ Links to core component repositories
-- ✅ Community (Issues + Discussions) and support channels
-
----
-
-## 60-second path
-
-### 1) Install
-```bash
-pip install retracesoftware
-````
-
-> If you prefer installing components explicitly, see **Components** below.
-
-### 2) Record a run
-
-Run your app under Retrace and produce a recording:
+**Record Python executions in production. Replay them deterministically anywhere.**
 
 ```bash
-python -m retracesoftware record -- python your_script.py --arg value
+# Install
+pip install retracesoftware.proxy requests
+python -m retracesoftware.autoenable
+
+# Record
+RETRACE=1 RETRACE_RECORDING_PATH=recording python app.py
+
+# Replay
+cd recording/run
+python -m retracesoftware --recording ..
 ```
 
-### 3) Replay it locally
+**[Get started in 10 minutes →](docs/quickstart.md)**
 
-Replay the exact execution deterministically:
+---
 
+## What is this?
+
+When your Python app crashes in production with mysterious bugs:
+
+**Without Retrace:**
+- Reconstruct from incomplete logs
+- Can't reproduce locally
+- Guess what caused it
+
+**With Retrace:**
+- Record the exact execution
+- Replay it in VS Code with breakpoints
+- Inspect every variable at the crash point
+
+No code changes. No guessing. Just deterministic replay.
+
+---
+
+## Quick example
+
+```python
+# Your app crashes in production
+def process_order(data):
+    priority = data['metadata']['priority']
+    level = int(priority[0])  # ValueError: invalid literal for int()
+```
+
+**Record it:**
 ```bash
-python -m retracesoftware replay path/to/recording
+RETRACE=1 RETRACE_RECORDING_PATH=crash python app.py
 ```
 
-### 4) Inspect
-
-During replay you can:
-
-* step through code paths
-* inspect values at key points
-* understand “why did this happen?” without needing production logs
-
-> Next: head to **docs/quickstart.md** for a minimal working example and common options.
-
----
-
-## What Retrace is (and isn’t)
-
-Retrace is built for:
-
-* debugging “can’t reproduce” incidents
-* understanding nondeterminism (timeouts, flaky dependencies, racey behavior)
-* capturing complete execution context with minimal developer effort
-* enabling higher-level use cases like data lineage and security analysis
-
-Retrace is not:
-
-* a traditional APM/logging system
-* a profiling-only tool
-* a “simulator” — replay is based on a real recorded execution
-
----
-
-## CLI entrypoint
-
-This repo documents the main CLI entrypoint:
-
+**Replay in VS Code:**
 ```bash
-python -m retracesoftware --help
-python -m retracesoftware record --help
-python -m retracesoftware replay --help
+code crash/replay.code-workspace
+# Set breakpoint on line with crash
+# Press F5
+# Inspect: priority = "urgent" (doesn't start with a number!)
 ```
 
-Typical patterns:
-
-```bash
-# Record a service startup (example)
-python -m retracesoftware record -- python -m yourservice
-
-# Replay a recording
-python -m retracesoftware replay recordings/rec-YYYYMMDD-HHMMSS
-
-# Replay with verbose output (example flag)
-python -m retracesoftware replay recordings/rec-... --verbose
-```
-
-> Exact flags/options vary by version — see **docs/cli.md** for the definitive reference.
+Root cause found in 60 seconds.
 
 ---
 
-## Docs
+## Features
 
-Start here:
-
-* **docs/quickstart.md** — the minimal working path
-* **docs/architecture.md** — how record/replay works at a high level
-* **docs/deployment-topologies.md** — running in dev/staging/prod (sidecar, agent, container, etc.)
-* **docs/security-model.md** — what’s captured, how it’s stored, and how to operate safely
-* **docs/troubleshooting.md** — common errors and how to file a great report
-
-Suggested layout:
-
-```
-docs/
-  quickstart.md
-  cli.md
-  architecture.md
-  deployment-topologies.md
-  security-model.md
-  troubleshooting.md
-  faq.md
-```
+- ✅ **Production-safe recording** - 10-30% overhead, minimal instrumentation
+- ✅ **Deterministic replay** - Exact same execution, every time
+- ✅ **No external dependencies** - Replay without network, databases, or credentials
+- ✅ **VS Code integration** - Debug with breakpoints, inspect any variable
+- ✅ **Multi-threaded support** - Records and replays concurrent execution
+- ✅ **Library compatible** - Works with Flask, Requests, psycopg2, SQLAlchemy, and most Python libraries
 
 ---
 
-## Demos
+## Documentation
 
-In **demos/** you’ll find:
+**Start here:**
+- [Installation](docs/installation.md) (5 minutes)
+- [Quickstart: Flask demo](docs/quickstart.md) (10 minutes)
+- [Supported environments](docs/supported-environments.md) (Does it work for my stack?)
 
-* **demos/minimal-replay/** — smallest “record then replay” example
-* **demos/gifs/** — short gifs/screenshots for the README and docs
-* **demos/sample-traces/** — example recordings (or links/scripts to generate them)
+**Production use:**
+- [Record safely in production](docs/guides/record-in-production.md)
+- [Security model](docs/security-model.md) (What data is captured?)
+- [Deployment topologies](docs/deployment-topologies.md) (Docker, K8s, CI/CD)
 
-Suggested layout:
+**When things break:**
+- [Troubleshooting](docs/troubleshooting.md)
+- [FAQ](docs/faq.md)
 
-```
-demos/
-  minimal-replay/
-  gifs/
-  screenshots/
-  sample-traces/
-```
-
----
-
-## Components (core repos)
-
-Retrace is composed of several repositories. If you’re contributing or want to understand internals, start here:
-
-* **retracesoftware/retracesoftware-proxy**
-  Runtime proxy layer that instruments Python behavior for recording and reconstructs behavior during replay.
-
-* **retracesoftware/retracesoftware-stream**
-  Binary object/type I/O used to persist events during record and retrieve them during replay.
-
-* **retracesoftware/retracesoftware-utils**
-  C++ utilities and types used by proxies (descriptor detection, wrapped objects, thread helpers, hashing controls, etc.).
-
-* **retracesoftware/retracesoftware-functional**
-  Functional combinators used to assemble gateway logic (efficient helpers, vectorcall-based primitives).
-
-* **retracesoftware/retracesoftware-autoenable** (optional)
-  `sitecustomize` hook to enable record/replay automatically when `RETRACE_MODE` is set.
+**[Full documentation →](docs/)**
 
 ---
 
-## Community & support
+## Requirements
 
-This repo is the **community front door**.
-
-* **Questions / “how do I…?”** → GitHub **Discussions**
-* **Bugs / feature requests** → GitHub **Issues**
-
-Other channels:
-
-* Slack/Discord: **(add link here)**
-* Email: **[support@retracesoftware.com](mailto:support@retracesoftware.com)** *(or replace with your preferred address)*
-
-When reporting an issue, please include:
-
-* OS + Python version
-* Retrace version (`pip show retracesoftware`)
-* Whether the problem occurs in **record**, **replay**, or both
-* A minimal reproduction (or a safe-to-share recording, if possible)
+- Python 3.11
+- Linux (Ubuntu 22.04+, Debian 11+) or macOS (13.0+)
+- Windows: not yet supported
 
 ---
 
-## Security
+## Status
 
-Please don’t file sensitive security issues in public Issues.
+**Preview release** - Production recording works. Provenance engine (value-level lineage) coming soon.
 
-See **SECURITY.md** for reporting guidelines.
+**What works:**
+- Record/replay deterministically
+- VS Code debugging integration
+- Multi-threading and async/await
+- Common libraries (Flask, Requests, PostgreSQL, SQLite)
+
+**Known limitations:**
+- Python 3.11 only (3.12 coming soon)
+- Some multiprocessing patterns (spawn mode)
+- Windows not supported yet
+
+See [Supported Environments](docs/supported-environments.md) for details.
 
 ---
 
-## Contributing
+## Get help
 
-Contributions are welcome! See **CONTRIBUTING.md** for:
-
-* dev setup
-* repo map
-* testing
-* release process (if applicable)
+- **Found a bug?** [File an issue](https://github.com/retracesoftware/retrace/issues)
+- **Have questions?** [Start a discussion](https://github.com/retracesoftware/retrace/discussions)
+- **Need support?** support@retracesoftware.com
 
 ---
 
 ## License
 
-See **LICENSE**.
+[Add your license here]
+
+---
+
+**Built by [Retrace Software](https://retracesoftware.com)**
+```
+
 
 
