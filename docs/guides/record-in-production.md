@@ -7,7 +7,7 @@ Record in production when:
 - Local reproduction is impossible
 - You need to preserve exact execution state for debugging
 
-Don't record everything—use targeted recording based on your needs.
+Don't record everything; use targeted recording based on your needs.
 
 ---
 
