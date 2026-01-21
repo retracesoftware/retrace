@@ -1,6 +1,6 @@
 # Quickstart: Flask + Requests
 
-**What you'll learn:** Record a Flask app crash, replay it deterministically, and inspect the exact state that caused it—all without network traffic.
+**What you'll learn:** Record a Flask app crash, replay it deterministically, and inspect the exact state that caused it, all without network traffic.
 
 **Time:** 10 minutes
 
@@ -124,7 +124,7 @@ You should see:
 ValueError: invalid literal for int() with base 10: 'u'
 ```
 
-**Same crash, but no network traffic.** The external API call to httpbin.org was not executed—it returned the recorded result.
+**Same crash, but no network traffic.** The external API call to httpbin.org was not executed, it returned the recorded result.
 
 ## Step 4: Replay in VS Code (the "aha" moment)
 
