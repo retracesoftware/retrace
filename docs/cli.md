@@ -1,155 +1,207 @@
-# CLI reference
+# CLI Reference
 
-Retrace exposes a CLI via:
+## Recording
 
+### Basic recording
 ```bash
-python -m retracesoftware --help
-````
+RETRACE=1 RETRACE_RECORDING_PATH=<output_path> python your_app.py
+```
 
-The two core subcommands are:
+**Parameters:**
+- `RETRACE=1` - Enable recording
+- `RETRACE_RECORDING_PATH=<path>` - Where to save the recording
 
-* `record` — run a program under Retrace and write a deterministic recording
-* `replay` — replay a recording deterministically
+**Example:**
+```bash
+RETRACE=1 RETRACE_RECORDING_PATH=recordings/crash-2026-01-21 python app.py
+```
 
-> Keep this file in sync with your actual `--help` output as the CLI evolves.
+**Output:**
+Creates directory at `<output_path>` containing:
+- `trace.bin` - Captured execution data
+- `run/` - Copy of source files
+- `replay.code-workspace` - VS Code workspace
+- `settings.json` - Replay configuration
 
 ---
 
-## Quick examples
+## Replaying
+
+### CLI replay
+
+From the `<recording>/run/` directory:
+```bash
+cd <recording>/run
+python -m retracesoftware --recording ..
+```
+
+**Example:**
+```bash
+cd recordings/crash-2026-01-21/run
+python -m retracesoftware --recording ..
+```
+
+**Behavior:**
+- Executes recorded program deterministically
+- External calls return recorded results (no network/DB access)
+- Crashes/exceptions reproduce exactly as recorded
+
+### VS Code replay
+```bash
+code <recording>/replay.code-workspace
+```
+
+Or: File → Open Workspace from File → select `replay.code-workspace`
+
+Then press **F5** to start debugging with breakpoints.
+
+---
+
+## Installation commands
+
+### Install dependencies
+```bash
+python -m pip install --upgrade pip
+python -m pip install --upgrade retracesoftware.proxy requests
+```
+
+### Enable Retrace
+
+One-time per environment:
+```bash
+python -m retracesoftware.autoenable
+```
+
+### Verify installation
+```bash
+python -c "import retracesoftware.proxy; print('Retrace installed')"
+```
+
+---
+
+## Environment variables
+
+### Recording
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `RETRACE` | Yes | Set to `1` to enable recording |
+| `RETRACE_RECORDING_PATH` | Yes | Output directory path |
+
+**Example with Flask:**
+```bash
+RETRACE=1 RETRACE_RECORDING_PATH=recordings/test \
+FLASK_APP=app.py \
+flask run
+```
+
+**Example with Django:**
+```bash
+RETRACE=1 RETRACE_RECORDING_PATH=recordings/test \
+python manage.py runserver
+```
+
+### Advanced (optional)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `RETRACE_FILTER` | None | Filter which calls to record (future) |
+| `RETRACE_MAX_SIZE` | None | Max trace.bin size (future) |
+
+---
+
+## Python module interface
+
+### Recording programmatically
+```python
+import os
+
+os.environ['RETRACE'] = '1'
+os.environ['RETRACE_RECORDING_PATH'] = 'my_recording'
+
+# Your application code
+import myapp
+myapp.run()
+```
+
+### Conditional recording
+```python
+import os
+
+def enable_recording_if_error():
+    try:
+        run_application()
+    except Exception as e:
+        # Enable recording and retry
+        os.environ['RETRACE'] = '1'
+        os.environ['RETRACE_RECORDING_PATH'] = f'recordings/error-{id}'
+        run_application()  # Re-run with recording
+```
+
+---
+
+## Common patterns
+
+### Record a Flask app
+```bash
+RETRACE=1 RETRACE_RECORDING_PATH=recordings/flask-test python app.py
+```
 
 ### Record a script
-
 ```bash
-python -m retracesoftware record -- python your_script.py --arg value
+RETRACE=1 RETRACE_RECORDING_PATH=recordings/script-test python myscript.py
 ```
 
-### Record a module entrypoint
-
+### Record with arguments
 ```bash
-python -m retracesoftware record -- python -m yourservice
+RETRACE=1 RETRACE_RECORDING_PATH=recordings/with-args \
+python myscript.py --arg1 value1 --arg2 value2
 ```
 
-### Replay a recording
-
+### Record in Docker
 ```bash
-python -m retracesoftware replay path/to/recording
+docker run -e RETRACE=1 \
+  -e RETRACE_RECORDING_PATH=/recordings \
+  -v ./recordings:/recordings \
+  myapp:latest
 ```
 
 ---
 
-## `record`
+## Exit codes
 
-### Synopsis
-
-```bash
-python -m retracesoftware record [options] -- <command...>
-```
-
-### Examples
-
-```bash
-# Script
-python -m retracesoftware record -- python app.py
-
-# Module
-python -m retracesoftware record -- python -m yourservice
-
-# Any command (if supported)
-python -m retracesoftware record -- yourservice --flag value
-```
-
-### Options to document (fill in what you support)
-
-These are common knobs teams expect; include only what’s real:
-
-* `--output <dir>`
-  Where recordings are written.
-
-* `--name <label>`
-  Optional label to help identify the recording.
-
-* `--read-timeout <ms>`
-  Tune timeouts for record-time reads (if applicable).
-
-* `--include <module|path>` / `--exclude <module|path>`
-  Control what gets instrumented/recorded (if supported).
-
-* `--redact <rule>`
-  Redact sensitive values at record time (if supported).
-
-### Environment variables (if supported)
-
-* `RETRACE_OUTPUT` — default output directory for recordings
-* `RETRACE_LOG` — logging level/format
-* `RETRACE_MODE` — used by `retracesoftware-autoenable` (see below)
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | Application error (recorded) |
+| Non-zero | Application exit code (preserved in replay) |
 
 ---
 
-## `replay`
+## Troubleshooting
 
-### Synopsis
+**`RETRACE=1` has no effect**
+- Verify `retracesoftware.proxy` is installed
+- Check that `autoenable` was run
+- Try `python -c "import retracesoftware.proxy"`
 
-```bash
-python -m retracesoftware replay [options] <recording_dir>
-```
+**Recording directory not created**
+- Check write permissions on parent directory
+- Verify `RETRACE_RECORDING_PATH` is set
+- Look for error messages during startup
 
-### Examples
+**Replay fails with "recording not found"**
+- Ensure you're in `<recording>/run/` directory
+- Verify `--recording ..` points to recording root
+- Check that `trace.bin` exists
 
-```bash
-python -m retracesoftware replay recordings/rec-YYYYMMDD-HHMMSS
-```
-
-### Options to document (fill in what you support)
-
-* `--verbose`
-  Print additional information useful for diagnosing divergence.
-
-* `--check`
-  Validate determinism invariants (if supported).
-
-* `--breakpoint <file:line>`
-  Start replay paused at a breakpoint (if supported).
-
-* `--export <format>`
-  Export trace/timeline to JSON or another format (if supported).
+See [Troubleshooting](troubleshooting.md) for more.
 
 ---
 
-## Auto-enable (optional)
+## Next steps
 
-If you use `retracesoftware-autoenable`, you can enable record/replay automatically when an environment variable is set.
-
-Typical pattern:
-
-* `RETRACE_MODE=record` enables recording
-* `RETRACE_MODE=replay` enables replaying (with a specified recording path)
-
-> Document the exact values you support and how the recording path is specified.
-
----
-
-## Exit codes (recommended convention)
-
-Document your intended behavior. A common scheme is:
-
-* `0` — success
-* `1` — user/config error (bad args, missing recording)
-* `2` — replay divergence / determinism violation
-* `3` — internal error
-
----
-
-## Diagnostics
-
-Helpful commands to include in bug reports:
-
-```bash
-python -m retracesoftware --help
-python -m retracesoftware record --help
-python -m retracesoftware replay --help
-python --version
-pip show retracesoftware
-```
-
-See also: [Troubleshooting](troubleshooting.md)
+- [Quickstart tutorial](quickstart.md)
+- [Record in production](guides/record-in-production.md)
+- [Architecture overview](architecture.md)
 
