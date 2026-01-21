@@ -14,7 +14,7 @@
 
 ## Library Compatibility
 
-**Most Python libraries work without modification.** Retrace operates at Python call boundaries—it doesn't need to understand library internals.
+**Most Python libraries work without modification.** Retrace operates at Python call boundaries; it doesn't need to understand library internals.
 
 **How:** During recording, external calls execute normally while Retrace captures inputs/outputs. During replay, external calls return recorded results instead of re-executing.
 
@@ -35,7 +35,7 @@ See [Troubleshooting](troubleshooting.md) if you encounter issues.
 **Concurrency:**
 - ✅ Threading (fully supported)
 - ✅ Async/await (supported)
-- ⚠️ Multiprocessing (supported with caveats—see edge cases above)
+- ⚠️ Multiprocessing (supported with caveats, see edge cases above)
 
 **Execution environments:**
 - ✅ Docker containers
