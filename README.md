@@ -131,7 +131,7 @@ See [Supported Environments](docs/supported-environments.md) for details.
 
 ## License
 
-[Add your license here]
+[Apache 2.0](LICENSE)
 
 ---
 
