@@ -5,7 +5,7 @@
 Record in production when:
 - Bugs only appear with real data/traffic patterns
 - Local reproduction is impossible
-- You need to preserve exact execution state for debugging
+- You need to preserve the exact execution state for debugging
 
 Don't record everything; use targeted recording based on your needs.
 
