@@ -14,6 +14,17 @@
 
 ---
 
+## 🎯 Demos
+
+**Learn by doing:**
+
+- **[Flask Quickstart](quickstart.md)** - Record and debug a web app crash (10 min)
+- **[AI Agent Observability](demos/ai-agent.md)** - Debug non-deterministic LLM failures (15 min)
+- **[Invoice Parser with VLMs](demos/invoice-parser.md)** - Fintech document processing (20 min)
+- **[Not Diamond Router Audit](demos/notdiamond-router-audit.md)** - LLM routing cost governance (15 min)
+
+---
+
 ## 📖 Guides
 
 **Using Retrace in production:**
