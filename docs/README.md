@@ -36,6 +36,7 @@
 
 **Technical documentation:**
 
+- **[Performance](performance.md)** - Benchmark results and overhead analysis
 - **[CLI Commands](cli.md)** - Recording and replay syntax
 - **[Architecture](architecture.md)** - How Retrace works under the hood
 - **[Deployment Topologies](deployment-topologies.md)** - Docker, Kubernetes, CI/CD patterns
@@ -57,6 +58,12 @@
 - **Found a bug?** [File an issue](https://github.com/retracesoftware/retrace/issues)
 - **Have questions?** [Start a discussion](https://github.com/retracesoftware/retrace/discussions)
 - **Need support?** [Email us](mailto:support@retracesoftware.com)
+
+---
+
+## 🧪 For Developers
+
+- **[Benchmark Suite](../benchmarks/)** - Run performance benchmarks yourself
 
 ---
 
