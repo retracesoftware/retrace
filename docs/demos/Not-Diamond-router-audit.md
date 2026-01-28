@@ -243,7 +243,8 @@ rm -f routing_audit.jsonl
 **Production use:**
 - [Record safely in production](../guides/record-in-production.md)
 - [Security for AI applications](../security-model.md)
-
+- [Multi Agent Handoff Bug] (Multi-Agent-Handoff-Bug.md)
+  
 ---
 
 **Questions?** [File an issue](https://github.com/retracesoftware/retrace/issues)
